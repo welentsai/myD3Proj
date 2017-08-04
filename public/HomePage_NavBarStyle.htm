@@ -1,0 +1,139 @@
+<!DOCTYPE html> 
+<html lang="zh">
+<head>
+	<title>Rihcheng Homepage (with jQuery and Bootstrap)</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+	<script type="text/javascript" src="shprInfo.js"></script>
+</head>
+
+<body>
+<div class="container-fluid">
+	<h2>景晟企業社 進銷存管理系統</h2>
+</div>
+
+<!-- Primary Navigation Bar -->
+<nav class="navbar navbar-inverse navbar-fixed-top" id="primaryNavBar">
+	<div class="container-fluid">
+		<ul class="nav navbar-nav">
+			<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">系統動作<span class="caret"></span></a>
+				<ul class="dropdown-menu">
+					<li><a href="#">備份資料庫</a></li>
+					<li><a href="#">設定備份路徑</a></li>
+					<li class="divider"></li>
+					<li><a href="#">About US</a></li>
+				</ul>
+			</li>
+
+			<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">出貨管理<span class="caret"></span></a>
+				<ul class="dropdown-menu">
+					<li><a href="#" id="custInfo">客戶資料</a></li>
+					<li><a href="#" id="custShpr">出資單建立</a></li>
+				</ul>
+			</li>
+
+			<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">採購管理<span class="caret"></span></a>
+				<ul class="dropdown-menu">
+					<li><a href="#">供應商資料</a></li>
+					<li><a href="#">進貨單建立</a></li>
+				</ul>
+			</li>
+
+			<li><a href="ItemInfo.htm" target="_self">料件基本資料</a></li>
+
+			<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">流水帳管理<span class="caret"></span></a>
+				<ul class="dropdown-menu">
+					<li><a href="#">科目明細</a></li>
+					<li><a href="#">流水帳明細</a></li>
+				</ul>
+			</li>
+
+			<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">報表列印<span class="caret"></span></a>
+				<ul class="dropdown-menu">
+					<li><a href="#">出貨單列印</a></li>
+					<li class="divider"></li>
+					<li><a href="#">產品出貨統計表</a></li>
+					<li><a href="#">客戶出貨統計表</a></li>
+					<li class="divider"></li>
+					<li><a href="#">產品進貨統計表</a></li>
+					<li><a href="#">供應商進貨統計表</a></li>
+				</ul>
+			</li>
+		</ul>
+
+		<ul class="nav navbar-nav navbar-right">
+			<li><a href="#" data-toggle="modal" data-target="#myLogin"><span class="glyphicon glyphicon-user"></span>登錄系統</a></li>
+		</ul>
+	</div>
+</nav>
+
+<!-- div element for load in a page -->
+<div class="container-fluid" id="subPage"></div>
+
+<!-- Modal dialog for login -->
+<div class="modal fade" id="myLogin" role="dialog">
+	<div class="modal-dialog">
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4><span class="glyphicon glyphicon-lock"></span>使用者登錄</h4>
+      </div>
+      <div class="modal-body">
+      	<form role="form">
+      		<div class="form-group">
+              <label for="usrname"><span class="glyphicon glyphicon-user"></span>帳號</label>
+              <input type="text" class="form-control" id="usrname" placeholder="輸入 email">
+          </div>
+          <div class="form-group">
+              <label for="psw"><span class="glyphicon glyphicon-eye-open"></span>密碼</label>
+              <input type="text" class="form-control" id="psw" placeholder="輸入密碼">
+          </div>
+          <div class="checkbox">
+              <label><input type="checkbox" value="" checked>記住我</label>
+          </div>
+
+          <button type="submit" class="btn btn-success btn-block" id="myLoginBtn"><span class="glyphicon glyphicon-off"></span>登錄</button>
+      	</form>
+      </div>
+      <div class="modal-footer">
+      	<button type="submit" class="btn btn-danger btn-default pull-left" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span>取消</button>
+      	<p><a href="#">忘記密碼?</a></p>
+      </div>
+		</div>
+	</div>
+</div>
+
+
+<!-- Add Event Handler after page ready -->
+<script>
+$(document).ready(function(){
+
+  $("#myLogin").on("show.bs.modal", function (event){
+    console.log("show.bs.modal event is triggered!!");
+  });
+
+  $("#myLoginBtn").on("click",function (){
+    console.log("long button in modal is triggered!!");
+  });
+
+  // event handler for loading customer information page
+  $("#custInfo").on("click",function (){
+    //console.log("Customer Info web page is triggered!!");
+   	//$(subPage).load("CustomerInfo.htm #custForm");
+  });
+
+  // event handler for loading shipper information page
+  $("#custShpr").on("click",function (){
+    console.log("Customer Info web page is triggered!!");
+    $(subPage).load("ShipperInfo.htm");
+  });
+});
+</script>
+
+</body>
+</html>

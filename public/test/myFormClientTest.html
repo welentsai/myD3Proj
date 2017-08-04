@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+</head>
+
+<body>
+
+<div ng-app="myApp" ng-controller="myCtrl">
+<p>客戶資料查詢</p>
+
+<form>
+  客戶編號:<br>
+  <input type="text" ng-model="custid" value="A01">
+  <br>
+
+  <button ng-click="myFunc()">查詢</button>
+</form>
+
+<ul>
+  <li ng-repeat="x in myData">
+    {{ x.ID + ', ' + x.Categ + ', ' + x.Name + ', ' + x.Addr + ', ' 
+    + x.Tel + ', ' + x.Fax + ', ' + x.CtcPerson + ', ' + x.MobilePhoneNum }}
+  </li>
+</ul>
+
+</div>
+
+<script>
+var app = angular.module('myApp', []);
+app.controller('myCtrl', function($scope, $http) {
+
+	//initialization 
+	$scope.custid = 'A01';
+
+	//myFunc() - show up response data from mysql
+	$scope.myFunc = function() {
+		console.log("My function invoked!!!");
+		console.log("param is : " + $scope.custid);
+
+		var param = {};
+		param.custid = $scope.custid;
+
+		console.log("JSON data is : " + JSON.stringify(param));
+
+		$http.post("/welcome", JSON.stringify(param)).then(function(response) {
+  		console.log(response.data);
+    	$scope.myData = response.data;
+  	});
+	}
+});
+</script>
+
+</body>
+</html>
