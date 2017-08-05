@@ -1,0 +1,110 @@
+<!DOCTYPE html> 
+<html lang="zh">
+<head>
+	<meta charset="utf-8">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="stylesheet" type="text/css" href="stylesheets/style.css">
+	
+	<!-- D3 -->
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+
+</head>
+
+<body>
+
+<style>
+.bar {
+  fill: steelblue;
+}
+
+.bar:hover {
+  fill: brown;
+}
+
+.axis--x path {
+  display: none;
+}
+
+.chart text {
+  fill: white;
+  font: 10px sans-serif;
+  text-anchor: middle;
+}
+
+</style>
+
+<div class="container-fluid">
+	<h2>D3 Letter Frequency</h2>
+</div>
+
+<svg width="960" height="500"></svg>
+
+<script>
+
+var svg = d3.select("svg"),
+    margin = {top: 20, right: 20, bottom: 30, left: 40},
+    width = +svg.attr("width") - margin.left - margin.right,
+    height = +svg.attr("height") - margin.top - margin.bottom;
+
+console.log("width is [%s], height is [%s]", width, height);
+
+// x-scale
+var x = d3.scaleBand()  // create an ordinal band scale
+    .rangeRound([0, width]) //display range
+    .padding(0.1);
+
+// y-scale
+var y = d3.scaleLinear()
+    .range([height, 0]); // display range
+
+var g = svg.append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+// type is a middleware function for data
+d3.tsv("data/letter_frequency.tsv", type, function(error, data) {
+
+  if (error) throw error;
+
+  x.domain(data.map(function(d) { return d.letter; })); // x-scale data domain
+  y.domain([0, d3.max(data, function(d) { return d.frequency; })]); // y-scale data domain
+
+  // d3.axisBottom(scale) => create a new bottom-oriented axis generator
+  g.append("g")
+      .attr("class", "axis axis--x")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x)); //call() -> Invokes the specified function exactly once
+
+  // d3.axisLeft(scale) => create a new left-oriented axis generator
+  g.append("g")
+      .attr("class", "axis axis--y")
+      .call(d3.axisLeft(y).ticks(10, ".0%")); // y-scale 是 linear scale, 分成10等分標註, format 是.0%
+      /*
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", "0.71em")
+      .attr("text-anchor", "end")
+      .text("Frequency");
+      */
+
+  g.selectAll(".bar")
+    .data(data)
+    .enter().append("rect")
+      .attr("class", "bar")
+      .attr("x", function(d) { return x(d.letter); })
+      .attr("y", function(d) { return y(d.frequency); })
+      .attr("width", x.bandwidth())
+      .attr("height", function(d) { return height - y(d.frequency); });
+});
+
+function type(d) {
+  d.frequency = +d.frequency; // coerce to number
+  return d;
+}
+
+</script>
+
+</body>
+</html>

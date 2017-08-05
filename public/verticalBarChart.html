@@ -1,0 +1,79 @@
+<!DOCTYPE html> 
+<html lang="zh">
+<head>
+	<meta charset="utf-8">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="stylesheet" type="text/css" href="stylesheets/style.css">
+	
+	<!-- D3 -->
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+</head>
+
+<body>
+
+<style>
+.chart rect {
+  fill: steelblue;
+}
+
+.chart text {
+  fill: white;
+  font: 10px sans-serif;
+  text-anchor: middle;
+}
+</style>
+
+<div class="container-fluid">
+	<h2>D3 Hello World</h2>
+</div>
+
+<svg class="chart"></svg>
+
+<script>
+
+var width = 960,
+    height = 500;
+
+var y = d3.scaleLinear()
+    .range([height, 0]); // display range 大到小 => input data 越小, scale 後, output 數值越大
+
+var chart = d3.select(".chart") // class selector
+    .attr("width", width)
+    .attr("height", height);
+
+d3.tsv("data/data.tsv", type, function(error, data) {
+  y.domain([0, d3.max(data, function(d) { return d.value; })]);
+
+  var barWidth = width / data.length;
+
+  var bar = chart.selectAll("g")
+      .data(data)
+    .enter().append("g")
+      .attr("transform", function(d, i) { return "translate(" + i * barWidth + ",0)"; });
+
+  bar.append("rect")
+      .attr("y", function(d) { return y(d.value); })
+      .attr("height", function(d) { return height - y(d.value); })
+      .attr("width", barWidth - 1);
+
+  bar.append("text")
+      .attr("x", barWidth / 2)
+      .attr("y", function(d) { return y(d.value) + 3; })
+      .attr("dy", ".75em")
+      .text(function(d) { return d.value; });
+
+  console.log(bar);
+});
+
+function type(d) {
+  d.value = +d.value; // coerce to number
+  console.log(d);
+  return d;
+}
+
+</script>
+
+</body>
+</html>
