@@ -14,7 +14,6 @@
 <body>
 
 <style>
-
 text {
   font: bold 48px monospace;
 }
@@ -24,13 +23,8 @@ text {
 }
 
 .update {
-  fill: black;
+  fill: #333;
 }
-
-.exit {
-  fill: red;
-}
-
 </style>
 
 <div class="container-fluid">
@@ -53,11 +47,18 @@ update(alphabet);
 
 function update(data) {
 
-  var t = d3.transition()
-      .duration(4000);
+  // DATA JOIN
+  // Join new data with old elements, if any.
+  // after this, 
+  // enter() session for new leftover data
+  // exit() session for left-over elements
+
+  // To join data to elements with a key (index)
+  // The key function returns the key for a given datum or element
+  // you only need to worry about unique keys within a group
 
   // key function 根據字母為key值 => 相同字母, 留在 update() session
-  // leftover data => 新字母 => 在 enter() session
+  // leftover data => 新字母
   var text = g.selectAll("text")
     .data(data, function(d) { return d; });
 
@@ -65,31 +66,24 @@ function update(data) {
 
   // EXIT
   // Remove old elements as needed.
-  text.exit()
-      .attr("class", "exit")
-    .transition(t)
-      .attr("y", 60) // 下方
-      .style("fill-opacity", 1e-6)
-      .remove();
+  text.exit().remove();
 
-  // UPDATE old elements present in new data.
-  text.attr("class", "update")
-      .attr("y", 0)
-      .style("fill-opacity", 1)
-    .transition(t)
-      .attr("x", function(d, i) { return i * 32; });  // 相同字母, 但在新dataset可能不同位置, 所以重算 x-pos
+  // UPDATE
+  // Update old elements as needed.
+  text.attr("class", "update");
 
-  // ENTER new elements present in new data.
+  // ENTER
+  // Create new elements as needed.
+  //
+  // ENTER + UPDATE
+  // After merging the entered elements with the update selection,
+  // apply operations to both.
   text.enter().append("text")
       .attr("class", "enter")
       .attr("dy", ".35em")
-      .attr("y", -60) // 上方
-      .attr("x", function(d, i) { return i * 32; }) // 計算 x-pos
-      .style("fill-opacity", 1e-6)
-      .text(function(d) { return d; })  // 填上 text 值 = 字母
-    .transition(t)
-      .attr("y", 0)
-      .style("fill-opacity", 1);
+      .text(function(d) { return d; })  // 不同字母, 填上 element
+    .merge(text) // 因為是 join-by-字母, 所以根據新dataset的字母順序, 重新計算 x-pos
+      .attr("x", function(d, i) { return i * 32; });
 }
 
 // Grab a random sample of letters from the alphabet, in alphabetical order.
@@ -100,7 +94,7 @@ d3.interval(function() {
   update(d3.shuffle(alphabet)
       .slice(0, Math.floor(Math.random() * 26))
       .sort());
-}, 6 * 1000);
+}, 1.5 * 1000);
 
 </script>
 
