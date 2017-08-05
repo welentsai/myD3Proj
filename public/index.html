@@ -20,9 +20,40 @@
 	<h2>D3 Hello World</h2>
 </div>
 
-<svg class="chart"></svg>
+<svg width="720" height="120">
+  <rect width="100%" height="100%" style="fill:lightgreen;"> </rect>
+  <circle cx="40" cy="60" r="30" style="fill:steelblue;"></circle>
+  <circle cx="80" cy="60" r="30" style="fill:steelblue;"></circle>
+  <circle cx="120" cy="60" r="30" style="fill:steelblue;"></circle>
+</svg>
 
 <script>
+
+/*
+var circle = d3.selectAll("circle");
+
+circle.data([32, 57, 112]); // binding array data, mirrors to an array of elements
+
+
+*/
+var svg = d3.select("svg");
+
+// When joining data to elements, D3 puts any leftover data — 
+// or equivalently “missing” elements — in the enter selection.
+
+// By appending to the enter selection, we can create new circles for any missing data.
+var circle = svg.selectAll("circle")
+    .data([32, 57, 112, 293]);
+
+circle.attr("r", function(d) { return Math.sqrt(d); }); // apply to all elements 
+circle.attr("cx", function(d, i) { return i * 100 + 30; });
+
+var circleEnter = circle.enter().append("circle");
+
+circleEnter.attr("cy", 60);
+circleEnter.attr("cx", function(d, i) { return i * 100 + 30; });
+circleEnter.attr("r", function(d) { return Math.sqrt(d); });
+circleEnter.style("fill", "steelblue");
 
 </script>
 
