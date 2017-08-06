@@ -56,7 +56,7 @@ function update(data) {
   // 根據 key function , 相同 index 留下來 => 在 update() session
   // leftover data => 新 index
   var text = g.selectAll("text")
-    .data(data);
+    .data(data); // UPDATE
 
   console.log(text);
 
@@ -74,7 +74,7 @@ function update(data) {
   // ENTER + UPDATE
   // After merging the entered elements with the update selection,
   // apply operations to both.
-  text.enter().append("text")
+  text.enter().append("text") // bound to data here 
       .attr("class", "enter")
       .attr("x", function(d, i) { return i * 32; }) // new element at new index pos
       .attr("dy", ".35em")

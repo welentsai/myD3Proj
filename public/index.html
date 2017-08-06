@@ -65,6 +65,11 @@ function update(data) {
 
   // EXIT
   // Remove old elements as needed.
+
+  // selection.transition([name])
+  // Returns a new transition on the given selection with the specified name
+  // name -> a d3.transition(), default is null
+  // this method can be used to synchronize a transition across multiple selection
   text.exit()
       .attr("class", "exit")
     .transition(t)

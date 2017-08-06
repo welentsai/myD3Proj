@@ -60,7 +60,7 @@ function update(data) {
   // key function 根據字母為key值 => 相同字母, 留在 update() session
   // leftover data => 新字母
   var text = g.selectAll("text")
-    .data(data, function(d) { return d; });
+    .data(data, function(d) { return d; });  // UPDATE by key
 
   console.log(text);
 
