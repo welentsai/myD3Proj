@@ -1,0 +1,103 @@
+<!DOCTYPE html> 
+<html lang="zh">
+<head>
+	<meta charset="utf-8">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="stylesheet" type="text/css" href="stylesheets/style.css">
+	
+	<!-- D3 -->
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+</head>
+
+<body>
+
+<style>
+
+</style>
+
+<div class="container-fluid">
+	<h2>D3 Hello World</h2>
+</div>
+
+<svg width="960" height="500"></svg>
+
+<script>
+
+var svg = d3.select("svg"),
+    margin = {top: 20, right: 20, bottom: 30, left: 50},
+    width = +svg.attr("width") - margin.left - margin.right,
+    height = +svg.attr("height") - margin.top - margin.bottom,
+    g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+// d3.timeParse(specifier) -> return a new parser with given specifier
+// %d -> day ; %b -> abbr month name ; %y -> year
+var parseTime = d3.timeParse("%d-%b-%y");
+
+// d3.scaleTime() -> create a linear scale for time
+// rangeRound() -> set the output range and enable rounding
+var x = d3.scaleTime()
+    .rangeRound([0, width]);
+
+var y = d3.scaleLinear()
+    .rangeRound([height, 0]);  // 注意, range 是 [height, 0]
+
+// d3.line() -> create a new line generator
+var line = d3.line()
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y(d.close); });
+
+// row conversion function -> to map and filter row objects to a more-specific representation
+function rowFunc(d) {
+  d.date = parseTime(d.date);
+  d.close = +d.close;
+  //console.log(JSON.stringify(d));
+  return d;
+}
+
+d3.tsv("data/stock_price.tsv", rowFunc, function(error, data) {
+
+  if (error) throw error;
+
+  x.domain(d3.extent(data, function(d) { return d.date; }));
+  y.domain(d3.extent(data, function(d) { return d.close; }));
+
+  // d3.axisBottom() -> create a new bottom-oriented axis generator
+  g.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x));
+      /*
+    .select(".domain")
+      .remove();
+      */
+
+  g.append("g")
+      .call(d3.axisLeft(y))
+    .append("text") // append a <text> element
+      .attr("fill", "#000")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", "0.71em")
+      .attr("text-anchor", "end")
+      .text("Price ($)");
+
+  // datum() -> get or set element data (without joining), 純資料
+
+  // 因為劃線用的坐標都放在 同一個 <path> element 的 d 屬性中
+  // 所以不用 .data() 來一一對應 element <-> data 
+  g.append("path")
+      .datum(data)
+      //.data(data) 
+      .attr("fill", "none")
+      .attr("stroke", "steelblue")
+      .attr("stroke-linejoin", "round")
+      .attr("stroke-linecap", "round")
+      .attr("stroke-width", 1.5)
+      .attr("d", line);
+});
+
+</script>
+
+</body>
+</html>
