@@ -15,22 +15,6 @@
 
 <style>
 
-text {
-  font: bold 48px monospace;
-}
-
-.enter {
-  fill: green;
-}
-
-.update {
-  fill: black;
-}
-
-.exit {
-  fill: red;
-}
-
 </style>
 
 <div class="container-fluid">
@@ -41,71 +25,77 @@ text {
 
 <script>
 
-var alphabet = "abcdefghijklmnopqrstuvwxyz".split("");
-
 var svg = d3.select("svg"),
-    width = +svg.attr("width"),
-    height = +svg.attr("height"),
-    g = svg.append("g").attr("transform", "translate(32," + (height / 2) + ")");
+    margin = {top: 20, right: 20, bottom: 30, left: 50},
+    width = +svg.attr("width") - margin.left - margin.right,
+    height = +svg.attr("height") - margin.top - margin.bottom,
+    g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-// The initial display.
-update(alphabet);
+// d3.timeParse(specifier) -> return a new parser with given specifier
+// %d -> day ; %b -> abbr month name ; %y -> year
+var parseTime = d3.timeParse("%d-%b-%y");
 
-function update(data) {
+// d3.scaleTime() -> create a linear scale for time
+// rangeRound() -> set the output range and enable rounding
+var x = d3.scaleTime()
+    .rangeRound([0, width]);
 
-  var t = d3.transition()
-      .duration(4000);
+var y = d3.scaleLinear()
+    .rangeRound([height, 0]);  // 注意, range 是 [height, 0]
 
-  // key function 根據字母為key值 => 相同字母, 留在 update() session
-  // leftover data => 新字母 => 在 enter() session
-  var text = g.selectAll("text")
-    .data(data, function(d) { return d; });
+// d3.line() -> create a new line generator
+var line = d3.line()
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y(d.close); });
 
-  console.log(text);
-
-  // EXIT
-  // Remove old elements as needed.
-
-  // selection.transition([name])
-  // Returns a new transition on the given selection with the specified name
-  // name -> a d3.transition(), default is null
-  // this method can be used to synchronize a transition across multiple selection
-  text.exit()
-      .attr("class", "exit")
-    .transition(t)
-      .attr("y", 60) // 下方
-      .style("fill-opacity", 1e-6)
-      .remove();
-
-  // UPDATE old elements present in new data.
-  text.attr("class", "update")
-      .attr("y", 0)
-      .style("fill-opacity", 1)
-    .transition(t)
-      .attr("x", function(d, i) { return i * 32; });  // 相同字母, 但在新dataset可能不同位置, 所以重算 x-pos
-
-  // ENTER new elements present in new data.
-  text.enter().append("text")
-      .attr("class", "enter")
-      .attr("dy", ".35em")
-      .attr("y", -60) // 上方
-      .attr("x", function(d, i) { return i * 32; }) // 計算 x-pos
-      .style("fill-opacity", 1e-6)
-      .text(function(d) { return d; })  // 填上 text 值 = 字母
-    .transition(t)
-      .attr("y", 0)
-      .style("fill-opacity", 1);
+// row conversion function -> to map and filter row objects to a more-specific representation
+function rowFunc(d) {
+  d.date = parseTime(d.date);
+  d.close = +d.close;
+  //console.log(JSON.stringify(d));
+  return d;
 }
 
-// Grab a random sample of letters from the alphabet, in alphabetical order.
-// d3.interval(cb, [delay]) => schedule a timer in delay milliseconds
-// d3.shuffle() => randomize the order of an array
-d3.interval(function() {
-  console.log("Timer Triggered !!");
-  update(d3.shuffle(alphabet)
-      .slice(0, Math.floor(Math.random() * 26))
-      .sort());
-}, 6 * 1000);
+d3.tsv("data/stock_price.tsv", rowFunc, function(error, data) {
+
+  if (error) throw error;
+
+  x.domain(d3.extent(data, function(d) { return d.date; }));
+  y.domain(d3.extent(data, function(d) { return d.close; }));
+
+  // d3.axisBottom() -> create a new bottom-oriented axis generator
+  g.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x));
+      /*
+    .select(".domain")
+      .remove();
+      */
+
+  g.append("g")
+      .call(d3.axisLeft(y))
+    .append("text") // append a <text> element
+      .attr("fill", "#000")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", "0.71em")
+      .attr("text-anchor", "end")
+      .text("Price ($)");
+
+  // datum() -> get or set element data (without joining), 純資料
+
+  // 因為劃線用的坐標都放在 同一個 <path> element 的 d 屬性中
+  // 所以不用 .data() 來一一對應 element <-> data 
+  g.append("path")
+      .datum(data)
+      //.data(data) 
+      .attr("fill", "none")
+      .attr("stroke", "steelblue")
+      .attr("stroke-linejoin", "round")
+      .attr("stroke-linecap", "round")
+      .attr("stroke-width", 1.5)
+      .attr("d", line);
+});
 
 </script>
 
