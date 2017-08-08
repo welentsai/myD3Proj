@@ -59,6 +59,10 @@ function update(data) {
 
   // key function 根據字母為key值 => 相同字母, 留在 update() session
   // leftover data => 新字母
+
+  // the previously-bound data will use key function to compute key value
+  // new data will use key function to compute key value
+  // then do the matching
   var text = g.selectAll("text")
     .data(data, function(d) { return d; });  // UPDATE by key
 
