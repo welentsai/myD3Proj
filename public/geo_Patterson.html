@@ -49,15 +49,8 @@ var svg = d3.select("svg"),
     width = +svg.attr("width"),
     height = +svg.attr("height");
 
-// center(longitude, latitude) -> two-element array of longitude (經度) and latitude (緯度)
-// rotate(lambda(λ), phi(φ), gamma(γ) )
-//  lambda(λ) -> X軸(經度) 動
-//  phi(φ) -> Y軸(緯度) 動
-//  gamma(γ) -> Z軸(地磁軸) 動
-var projection = d3.geoMercator()
-    .scale(200) // set the scale factor
-    .center([0,23.5]) // 中心在 [0, 23.5] -> 經度0. 北緯23.5
-    .rotate([-80,0]) 
+var projection = d3.geoPatterson()
+    .scale(180) // set the scale factor
     .translate([width / 2, height / 2])
     .precision(0.1);
 
