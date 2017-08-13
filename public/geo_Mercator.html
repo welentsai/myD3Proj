@@ -1,0 +1,96 @@
+<!DOCTYPE html> 
+<html lang="zh">
+<head>
+	<meta charset="utf-8">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="stylesheet" type="text/css" href="stylesheets/style.css">
+
+  <!-- D3 -->
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+  <script src="//d3js.org/d3-geo-projection.v1.min.js"></script>
+  <script src="//d3js.org/topojson.v2.min.js"></script>
+	
+</head>
+
+<body>
+
+<style>
+
+.graticule {
+  fill: none;
+  stroke: #777;
+  stroke-width: 0.5px;
+  stroke-opacity: 0.5;
+}
+
+.land {
+  fill: #222;
+}
+
+.boundary {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 1px;
+}
+
+</style>
+
+<div class="container-fluid">
+	<h2>D3 Hello World</h2>
+</div>
+
+<svg width="960" height="547"></svg>
+
+<script>
+
+var svg = d3.select("svg"),
+    width = +svg.attr("width"),
+    height = +svg.attr("height");
+
+// center(longitude, latitude) -> two-element array of longitude (經度) and latitude (緯度)
+// rotate(lambda(λ), phi(φ), gamma(γ) )
+//  lambda(λ) -> X軸(經度) 動
+//  phi(φ) -> Y軸(緯度) 動
+//  gamma(γ) -> Z軸(地磁軸) 動
+var projection = d3.geoMercator()
+    .scale(200) // set the scale factor
+    .center([0,23.5]) // 中心在 [0, 23.5] -> 經度0. 北緯23.5
+    .rotate([-80,0]) 
+    .translate([width / 2, height / 2])
+    .precision(0.1);
+
+var path = d3.geoPath() // create a new geographic path generator
+    .projection(projection);
+
+//  directly generating the default 10° global graticule (經緯網)
+var graticule = d3.geoGraticule10(); 
+
+svg.append("path") // <path> 
+    .datum(graticule)
+    .attr("class", "graticule")
+    .attr("d", path);
+
+d3.json("data/world-50m.json", function(error, world) {
+
+  if (error) throw error;
+
+  console.log(world);
+
+  svg.insert("path", ".graticule")
+      .datum(topojson.feature(world, world.objects.land))
+      .attr("class", "land")
+      .attr("d", path);
+
+  svg.insert("path", ".graticule")
+      .datum(topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; }))
+      .attr("class", "boundary")
+      .attr("d", path);
+
+});
+
+</script>
+
+</body>
+</html>
