@@ -56,20 +56,21 @@ var x = d3.scaleLinear()
     .domain([1, 10])
     .rangeRound([600, 860]); // display range from [600, 860] on svg area
 
-var color = d3.scaleThreshold()
-    .domain(d3.range(2, 10))
-    .range(d3.schemeBlues[9]);
+var color = d3.scaleThreshold() // create an arbitrary quantizing linear scale
+    .domain(d3.range(2, 10)) // d3.range(2, 10) -> [2,3,4, ..., 9]
+    .range(d3.schemeBlues[9]); // 9個由淺至深的藍色color code array
 
 // 設定 <g> 元件, 相對原點 (0, 40)
 var g = svg.append("g")
     .attr("class", "key")
     .attr("transform", "translate(0,40)");
 
+// 產生由淺至深的藍色條
 g.selectAll("rect")
-  .data(color.range().map(function(d) {
-      d = color.invertExtent(d); // compute the domain values
-      if (d[0] == null) d[0] = x.domain()[0]; // x.domain()[0] = 1
-      if (d[1] == null) d[1] = x.domain()[1]; // x.domain()[1] = 10
+  .data(color.range().map(function(d) { // d is a color code 
+      d = color.invertExtent(d); // color code to domain range [d0, d1]
+      if (d[0] == null) d[0] = x.domain()[0]; // x.domain()[0] = 1  (處理 起始點 邊界值)
+      if (d[1] == null) d[1] = x.domain()[1]; // x.domain()[1] = 10 (處理 終點   邊界值)
       return d;
     }))
   .enter().append("rect")
@@ -116,9 +117,9 @@ function ready(error, us) {
   // a,b => geometry objects that share that arc
   // if a === b  ->  an arc is only used by a single geometry object -> not boundry arc -> return false
   // if a !== b -> an arc is used by different geometry objects -> boundry arc -> return true
-  _multiLineString = topojson.mesh(us, us.objects.states, function(a, b) { console.log("a is [%s], b is [%s]", JSON.stringify(a), JSON.stringify(b)); return a !== b; });
+  _multiLineString = topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; });
 
-  console.log(us);
+  //console.log(us);
 
   // 單位行政區(county) 邊界
   svg.append("g")
