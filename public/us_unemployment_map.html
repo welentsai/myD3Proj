@@ -9,7 +9,6 @@
 
   <!-- D3 -->
   <script src="https://d3js.org/d3.v4.min.js"></script>
-  <script src="//d3js.org/d3-geo-projection.v1.min.js"></script>
   <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
   <script src="//d3js.org/topojson.v2.min.js"></script>
 	
@@ -19,21 +18,14 @@
 
 <style>
 
-.graticule {
+.counties {
   fill: none;
-  stroke: #777;
-  stroke-width: 0.5px;
-  stroke-opacity: 0.5;
 }
 
-.land {
-  fill: #222;
-}
-
-.boundary {
+.states {
   fill: none;
-  stroke: #777;
-  stroke-width: 1px;
+  stroke: #fff;
+  stroke-linejoin: round;
 }
 
 </style>
@@ -46,12 +38,19 @@
 
 <script>
 
+var _us;
+var _geoJSON;
+var _multiLineString;
+
 // rotate(90 480,480) -> rotated 90° around a point at 480,480
 var svg = d3.select("svg"),
     width = +svg.attr("width"),
     height = +svg.attr("height");
 
 var unemployment = d3.map();
+
+// a geographic path generator
+var path = d3.geoPath();
 
 var x = d3.scaleLinear()
     .domain([1, 10])
@@ -60,15 +59,6 @@ var x = d3.scaleLinear()
 var color = d3.scaleThreshold() // create an arbitrary quantizing linear scale
     .domain(d3.range(2, 10)) // d3.range(2, 10) -> [2,3,4, ..., 9]
     .range(d3.schemeBlues[9]); // 9個由淺至深的藍色color code array
-
-var projection = d3.geoMercator()
-  .scale(6000) // set the scale factor
-  .center([121,23.5]) // 中心在 經度121. 北緯23.5
-  .translate([width / 2, height / 2])
-  .precision(0.1);
-
-var path = d3.geoPath() // create a new geographic path generator
-    .projection(projection);
 
 // 設定 <g> 元件, 相對原點 (0, 40)
 var g = svg.append("g")
@@ -108,34 +98,45 @@ g.call(d3.axisBottom(x)
 
 // async get data from remote
 d3.queue()
-    .defer(d3.json, "data/twTown1982.topo.json") //  register a task
-    //.defer(d3.json, "data/twCounty2010.topo.json") //  register a task
-    //.defer(d3.tsv, "data/unemployment.tsv", function(d) { unemployment.set(d.id, +d.rate); })
+    .defer(d3.json, "data/us-10m.v1.json") //  register a task
+    .defer(d3.tsv, "data/unemployment.tsv", function(d) { unemployment.set(d.id, +d.rate); })
     .await(ready);
 
 
 // topojson.feature() - convert TopoJSON to GeoJSON
 // topojson.mesh() - mesh TopoJSON geometry and convert to GeoJSON lines.
-function ready(error, tw) {
+function ready(error, us) {
   if (error) throw error;
 
-  console.log(topojson.feature(tw, tw.objects.layer1).features);
+  // for chrome console debug only
+  _us = us; 
+  _geoJSON = topojson.feature(us, us.objects.counties);
 
-  // 產生台灣地圖疆界線
+  // to produce a mesh of interior boundaries, 產生US內, 各州的邊界線
+  // 最後一個是 filter function, if filter function return true -> arc 會被包含進mesh
+  // a,b => geometry objects that share that arc
+  // if a === b  ->  an arc is only used by a single geometry object -> not boundry arc -> return false
+  // if a !== b -> an arc is used by different geometry objects -> boundry arc -> return true
+  _multiLineString = topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; });
+
+  //console.log(us);
+
+  // 單位行政區(county) 邊界
   svg.append("g")
+      .attr("class", "counties")
     .selectAll("path")
-    .data(topojson.feature(tw, tw.objects.layer1).features)
+    .data(topojson.feature(us, us.objects.counties).features)
     .enter().append("path")
-      .attr("class", "land")
+      .attr("fill", function(d) { return color(d.rate = unemployment.get(d.id)); })
       .attr("d", path)
     .append("title")
-      .text(function(d) {return d.properties.TOWNNAME;}); // d 就是每個 feature JSON
+      .text(function(d) { return d.rate + "%"; }); 
 
-  // 產生縣市邊界線
-  svg.append("path", ".graticule")
-      .datum(topojson.mesh(tw, tw.objects.layer1, function(a, b) { return a !== b; }))
-      .attr("class", "boundary")
-      .attr("d", path);
+  // 州邊界線
+  svg.append("path")
+      .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
+      .attr("class", "states")
+      .attr("d", path); 
 }
 
 </script>
