@@ -108,8 +108,8 @@ g.call(d3.axisBottom(x)
 
 // async get data from remote
 d3.queue()
-    .defer(d3.json, "data/twTown1982.topo.json") //  register a task
-    //.defer(d3.json, "data/twCounty2010.topo.json") //  register a task
+    //.defer(d3.json, "data/twTown1982.topo.json") //  鄉鎮市圖
+    .defer(d3.json, "data/twCounty2010.topo.json") //  縣市圖
     //.defer(d3.tsv, "data/unemployment.tsv", function(d) { unemployment.set(d.id, +d.rate); })
     .await(ready);
 
@@ -128,8 +128,9 @@ function ready(error, tw) {
     .enter().append("path")
       .attr("class", "land")
       .attr("d", path)
+      //.on("mouseover",  function(d) { console.log(d); } )
     .append("title")
-      .text(function(d) {return d.properties.TOWNNAME;}); // d 就是每個 feature JSON
+      .text(function(d) {return d.properties.COUNTYNAME;}); // d 就是每個 feature JSON
 
   // 產生縣市邊界線
   svg.append("path", ".graticule")
