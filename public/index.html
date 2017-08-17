@@ -109,7 +109,8 @@ g.call(d3.axisBottom(x)
 // async get data from remote
 d3.queue()
     //.defer(d3.json, "data/twTown1982.topo.json") //  鄉鎮市圖
-    .defer(d3.json, "data/twCounty2010.topo.json") //  縣市圖
+    .defer(d3.json, "data/raw_shp_tw/twCounty-simple-topo.json") //  縣市圖
+    //.defer(d3.json, "data/raw_shp_tw/twTown-simple-topo.json") //  鄉鎮圖
     //.defer(d3.tsv, "data/unemployment.tsv", function(d) { unemployment.set(d.id, +d.rate); })
     .await(ready);
 
@@ -119,22 +120,22 @@ d3.queue()
 function ready(error, tw) {
   if (error) throw error;
 
-  console.log(topojson.feature(tw, tw.objects.layer1).features);
+  console.log(topojson.feature(tw, tw.objects.twCounty).features);
 
   // 產生台灣地圖疆界線
   svg.append("g")
     .selectAll("path")
-    .data(topojson.feature(tw, tw.objects.layer1).features)
+    .data(topojson.feature(tw, tw.objects.twCounty).features)
     .enter().append("path")
       .attr("class", "land")
       .attr("d", path)
-      //.on("mouseover",  function(d) { console.log(d); } )
-    .append("title")
-      .text(function(d) {return d.properties.COUNTYNAME;}); // d 就是每個 feature JSON
+      .on("mouseover",  function(d) { console.log(d.properties);} );
+    //.append("title")
+      //.text(function(d) {console.log(d); return d.properties.COUNTYNAME;}); // d 就是每個 feature JSON
 
   // 產生縣市邊界線
   svg.append("path", ".graticule")
-      .datum(topojson.mesh(tw, tw.objects.layer1, function(a, b) { return a !== b; }))
+      .datum(topojson.mesh(tw, tw.objects.twCounty, function(a, b) { return a !== b; }))
       .attr("class", "boundary")
       .attr("d", path);
 }
