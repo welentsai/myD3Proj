@@ -6,139 +6,123 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
 	<link rel="stylesheet" type="text/css" href="stylesheets/style.css">
-
-  <!-- D3 -->
-  <script src="https://d3js.org/d3.v4.min.js"></script>
-  <script src="//d3js.org/d3-geo-projection.v1.min.js"></script>
-  <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
-  <script src="//d3js.org/topojson.v2.min.js"></script>
 	
+	<!-- D3 -->
+	<script src="https://d3js.org/d3.v4.min.js"></script>
 </head>
 
 <body>
 
 <style>
-
-.graticule {
-  fill: none;
-  stroke: #777;
-  stroke-width: 0.5px;
-  stroke-opacity: 0.5;
+.area {
+  fill: steelblue;
+  clip-path: url(#clip); /* 套用 clip, 圖形以外的都會被剪裁*/
 }
-
-.land {
-  fill: #222;
-}
-
-.boundary {
-  fill: none;
-  stroke: #777;
-  stroke-width: 1px;
-}
-
 </style>
 
 <div class="container-fluid">
 	<h2>D3 Hello World</h2>
 </div>
 
-<svg width="960" height="600"></svg>
+<svg width="960" height="500"></svg>
 
 <script>
 
-// rotate(90 480,480) -> rotated 90° around a point at 480,480
 var svg = d3.select("svg"),
-    width = +svg.attr("width"),
-    height = +svg.attr("height");
+    margin = {top: 20, right: 20, bottom: 30, left: 40},
+    width = +svg.attr("width") - margin.left - margin.right,
+    height = +svg.attr("height") - margin.top - margin.bottom,
+    g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-var unemployment = d3.map();
+// d3.timeParse(specifier) -> return a new parser with given specifier
+// %d -> day ; %b -> abbr month name ; %y -> year with century
+var parseTime = d3.timeParse("%b %Y");
 
-var x = d3.scaleLinear()
-    .domain([1, 10])
-    .rangeRound([600, 860]); // display range from [600, 860] on svg area
+// d3.scaleTime() -> create a linear scale for time
+// rangeRound() -> set the output range and enable rounding
+// range() -> set the output range
+var x = d3.scaleTime()
+    .rangeRound([0, width]);
 
-var color = d3.scaleThreshold() // create an arbitrary quantizing linear scale
-    .domain(d3.range(2, 10)) // d3.range(2, 10) -> [2,3,4, ..., 9]
-    .range(d3.schemeBlues[9]); // 9個由淺至深的藍色color code array
+var y = d3.scaleLinear()
+    .rangeRound([height, 0]);  // 注意, range 是 [height, 0]
 
-var projection = d3.geoMercator()
-  .scale(6000) // set the scale factor
-  .center([121,23.5]) // 中心在 經度121. 北緯23.5
-  .translate([width / 2, height / 2])
-  .precision(0.1);
+// 座標軸
+var xAxis = d3.axisBottom(x),
+    yAxis = d3.axisLeft(y);
 
-var path = d3.geoPath() // create a new geographic path generator
-    .projection(projection);
+var zoom = d3.zoom()
+    .scaleExtent([1, 32])
+    .translateExtent([[0, 0], [width, height]])
+    .extent([[0, 0], [width, height]])
+    .on("zoom", zoomed); // 註冊 zoom event listener -> zoomed
 
-// 設定 <g> 元件, 相對原點 (0, 40)
-var g = svg.append("g")
-    .attr("class", "key")
-    .attr("transform", "translate(0,40)");
+var area = d3.area()
+    .curve(d3.curveMonotoneX)
+    .x(function(d) { return x(d.date); })
+    .y0(height)
+    .y1(function(d) { return y(d.price); });
 
-// 產生由淺至深的藍色條
-g.selectAll("rect")
-  .data(color.range().map(function(d) { // d is a color code 
-      d = color.invertExtent(d); // color code to domain range [d0, d1]
-      if (d[0] == null) d[0] = x.domain()[0]; // x.domain()[0] = 1  (處理 起始點 邊界值)
-      if (d[1] == null) d[1] = x.domain()[1]; // x.domain()[1] = 10 (處理 終點   邊界值)
-      return d;
-    }))
-  .enter().append("rect")
-    .attr("height", 8)
-    .attr("x", function(d) { return x(d[0]); })
-    .attr("width", function(d) { return x(d[1]) - x(d[0]); })
-    .attr("fill", function(d) { return color(d[0]); });
+// 利用 <clipPath> , 裁去跑出座標軸的線圖
+svg.append("defs").append("clipPath")
+    .attr("id", "clip")
+  .append("rect")
+    .attr("width", width)
+    .attr("height", height);
 
-g.append("text")
-    .attr("class", "caption")
-    .attr("x", x.range()[0])
-    .attr("y", -10)
-    .attr("fill", "#000")
-    .attr("font-size", "15")
-    .attr("text-anchor", "start")
-    .attr("font-weight", "bold")
-    .text("Unemployment rate");
+//var g = svg.append("g")
+  //  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-g.call(d3.axisBottom(x)
-    .tickSize(10)
-    .tickFormat(function(x, i) { return i ? x : x + "%"; })
-    .tickValues(color.domain()))
-  .select(".domain")
-    .remove();
+function zoomed() {
+  console.log("zoom event called");
+  var t = d3.event.transform, 
+      xt = t.rescaleX(x);
 
-// async get data from remote
-d3.queue()
-    //.defer(d3.json, "data/twTown1982.topo.json") //  鄉鎮市圖
-    .defer(d3.json, "data/raw_shp_tw/twCounty-simple-topo.json") //  縣市圖
-    //.defer(d3.json, "data/raw_shp_tw/twTown-simple-topo.json") //  鄉鎮圖
-    //.defer(d3.tsv, "data/unemployment.tsv", function(d) { unemployment.set(d.id, +d.rate); })
-    .await(ready);
+  console.log(t);
+  g.select(".area").attr("d", area.x(function(d) { return xt(d.date); })); // 資料區重劃
+  g.select(".axis--x").call(xAxis.scale(xt)); // 座標軸重劃
+}
 
+// row conversion function -> to map and filter row objects to a more-specific representation
+function rowFunc(d) {
+  d.date = parseTime(d.date);
+  d.price = +d.price;
+  return d;
+}
 
-// topojson.feature() - convert TopoJSON to GeoJSON
-// topojson.mesh() - mesh TopoJSON geometry and convert to GeoJSON lines.
-function ready(error, tw) {
+d3.csv("data/sp500.csv", rowFunc, function(error, data) {
+
   if (error) throw error;
 
-  console.log(topojson.feature(tw, tw.objects.twCounty).features);
+  x.domain(d3.extent(data, function(d) { return d.date; }));
+  y.domain(d3.extent(data, function(d) { return d.price; }));
 
-  // 產生台灣地圖疆界線
-  svg.append("g")
-    .selectAll("path")
-    .data(topojson.feature(tw, tw.objects.twCounty).features)
-    .enter().append("path")
-      .attr("class", "land")
-      .attr("d", path)
-      .on("mouseover",  function(d) { console.log(d.properties);} );
-    //.append("title")
-      //.text(function(d) {console.log(d); return d.properties.COUNTYNAME;}); // d 就是每個 feature JSON
+  g.append("path")
+    .datum(data)
+    .attr("class", "area")
+    .attr("d", area);
 
-  // 產生縣市邊界線
-  svg.append("path", ".graticule")
-      .datum(topojson.mesh(tw, tw.objects.twCounty, function(a, b) { return a !== b; }))
-      .attr("class", "boundary")
-      .attr("d", path);
-}
+  g.append("g")
+      .attr("class", "axis axis--x")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  g.append("g")
+      .attr("class", "axis axis--y")
+      .call(yAxis);
+
+  //var d0 = new Date(2003, 0, 1),
+  //    d1 = new Date(2004, 0, 1);
+
+  // Gratuitous intro zoom!
+  svg.call(zoom);
+  /*
+  svg.call(zoom).transition()
+      .duration(1500)
+      .call(zoom.transform, d3.zoomIdentity
+          .scale(width / (x(d1) - x(d0)))
+          .translate(-x(d0), 0)); */
+});
 
 </script>
 
