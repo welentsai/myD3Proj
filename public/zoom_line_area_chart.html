@@ -51,17 +51,18 @@ var y = d3.scaleLinear()
 var xAxis = d3.axisBottom(x),
     yAxis = d3.axisLeft(y);
 
+// d3.zoom() -> return a function object, typically applied to selected elements via selection.call
 var zoom = d3.zoom()
-    .scaleExtent([1, 32])
-    .translateExtent([[0, 0], [width, height]])
-    .extent([[0, 0], [width, height]])
+    .scaleExtent([1, 32]) // set the allowed scale range
+    .translateExtent([[0, 0], [width, height]]) // set the extent of the zoomable world
+    .extent([[0, 0], [width, height]]) //  set the extent of the viewport
     .on("zoom", zoomed); // 註冊 zoom event listener -> zoomed
 
-var area = d3.area()
+var area = d3.area() // Generates an area for the given array of data
     .curve(d3.curveMonotoneX)
-    .x(function(d) { return x(d.date); })
-    .y0(height)
-    .y1(function(d) { return y(d.price); });
+    .x(function(d) { return x(d.date); }) // set the x0 and x1
+    .y0(height) //  set the baseline y
+    .y1(function(d) { return y(d.price); }); // set the topline y
 
 // 利用 <clipPath> , 裁去跑出座標軸的線圖
 svg.append("defs").append("clipPath")
