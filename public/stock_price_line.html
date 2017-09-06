@@ -15,6 +15,16 @@
 
 <style>
 
+.focus circle {
+  fill: none;
+  stroke: steelblue;
+}
+
+.overlay {
+  fill: none;
+  pointer-events: all;
+}
+
 </style>
 
 <div class="container-fluid">
@@ -34,6 +44,9 @@ var svg = d3.select("svg"),
 // d3.timeParse(specifier) -> return a new parser with given specifier
 // %d -> day ; %b -> abbr month name ; %y -> year
 var parseTime = d3.timeParse("%d-%b-%y");
+var bisectDate = d3.bisector(function(d) { return d.date; }).left,
+    formatValue = d3.format(",.2f"),
+    formatCurrency = function(d) { return "$" + formatValue(d); };
 
 // d3.scaleTime() -> create a linear scale for time
 // rangeRound() -> set the output range and enable rounding
@@ -95,7 +108,53 @@ d3.tsv("data/stock_price.tsv", rowFunc, function(error, data) {
       .attr("stroke-linecap", "round")
       .attr("stroke-width", 1.5)
       .attr("d", line);
+
+  var focus = g.append("g")
+      .attr("class", "focus")
+      .style("display", "none");
+
+  focus.append("circle")
+      .attr("r", 4.5);
+
+  focus.append("text")
+      .attr("x", 9)
+      .attr("dy", ".35em");
+
+  g.append("rect")
+    .attr("class", "overlay")
+    .attr("width", width)
+    .attr("height", height)
+    .on("mouseover", mouseover)
+    .on("mouseout", mouseout)
+    .on("mousemove", mousemove);
+
+  function mouseover () {
+    focus.style("display", null);
+  }
+
+  function mouseout() {
+    focus.style("display", "none");
+  }
+
+  function mousemove() {
+    console.log("mousemove");
+    var x0 = x.invert(d3.mouse(this)[0]), // x-scale 時間座標值
+        i = bisectDate(data, x0, 1), 
+        d0 = data[i - 1],
+        d1 = data[i],
+        d = x0 - d0.date > d1.date - x0 ? d1 : d0;
+    console.log("x0 " + x0);
+    console.log("i " + i);
+    console.log("d0 " + JSON.stringify(d0));
+    console.log("d " + JSON.stringify(d0));
+
+    focus.attr("transform", "translate(" + x(d.date) + "," + y(d.close) + ")");
+    focus.select("text").text(d.date + " ," + formatCurrency(d.close));
+  }
+
 });
+
+
 
 </script>
 
