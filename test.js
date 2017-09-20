@@ -7,9 +7,7 @@ const cheerio = require('cheerio');
 var moment = require('moment');
 
 // 自訂 module
-const mgLib = require('./lib/fedFundOp.js');
-
-//mgLib.init();
+const db = require('./lib/mongoose/fedFundOp.js');
 
 const uri = "https://stock-ai.com/eomDataQuery";
 
@@ -50,12 +48,12 @@ request.post(uri, payload, function(error, response, jsonStr) {
 			dataL.push(_row);
 		}
 
-    // mgLib.updateFedFund(dataL, {upsert:true}, function(err) {
-    //   if(err) {
-    //     console.log("update Fed Funds Rate error !!");
-    //   } else {
-    //     console.log("update Fed Funds Rate successfully !!");
-    //   }
-    // });
+    db.updateFedFund(dataL, {upsert:true}, function(err) {
+      if(err) {
+        console.log("update Fed Funds Rate error !!");
+      } else {
+        console.log("update Fed Funds Rate successfully !!");
+      }
+    });
 	}
 });

@@ -1,20 +1,18 @@
 const fs = require('fs');
 
-var express = require('express');
-var bodyParser = require('body-parser');
-var app = express();
-var path    = require("path");
-var dbctrlr = require("./lib/mysql.js");
+const express = require('express');
+const bodyParser = require('body-parser');
+const app = express();
+const path = require("path");
 
-var sqlRows; //data array from sql
-var objs = []; // data array
 
+var fedFunds = require('./lib/routes/fedFunds');
 
 // web server 
 
 /** bodyParser.urlencoded(options)
  *  Parses the text as URL encoded data (which is how browsers tend to send form data from regular forms set to POST)
- *  and exposes the resulting object (containing the keys and values) on req.body
+ *  and exposes the
  */
 app.use(bodyParser.urlencoded({ extended: false })); 
 
@@ -25,24 +23,36 @@ app.use(bodyParser.json())
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+
 app.get('/', function (req, res) {
-  //console.log(path.join(__dirname+'/index.html'));
-  //console.log(req);
-  //res.send('Hello World!');
-  //res.write(JSON.stringify(anObject));  //return a JSON object
   res.sendFile(path.join(__dirname+'/public/index.html'));
 });
 
+app.use('/fedFunds', fedFunds);
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
+  console.log("error handler is called !!!");
   var err = new Error('Not Found');
   err.status = 404;
   res.send(err);
   //next(err);
 });
 
+// error handler
+app.use(function(err, req, res, next) {
+  // set locals, only providing error in development
+  res.locals.message = err.message;
+  res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+  // render the error page
+  res.status(err.status || 500);
+  res.render('error');
+});
+
 // listen port
 app.listen(3000, function () {
   console.log('Example app listening on port 3000!');
 });
+
 
