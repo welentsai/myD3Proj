@@ -1,9 +1,11 @@
 const fs = require('fs');
 
 const express = require('express');
+const path = require("path");
+const logger = require('morgan');
 const bodyParser = require('body-parser');
 const app = express();
-const path = require("path");
+
 
 
 var fedFunds = require('./lib/routes/fedFunds');
@@ -23,6 +25,8 @@ app.use(bodyParser.json())
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+// set Morgan logger as a middleware
+app.use(logger('dev'));
 
 app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname+'/public/index.html'));
