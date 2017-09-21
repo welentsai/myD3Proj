@@ -65,11 +65,11 @@ var line = d3.line()
 function rowFunc(d) {
   d.date = parseTime(d.date);
   d.close = +d.close;
-  //console.log(JSON.stringify(d));
+  console.log("d.date: " + d.date);
   return d;
 }
 
-d3.tsv("data/stock_price.tsv", rowFunc, function(error, data) {
+d3.tsv("../data/stock_price.tsv", rowFunc, function(error, data) {
 
   if (error) throw error;
 
