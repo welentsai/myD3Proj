@@ -161,4 +161,32 @@ myApp.controller('mainCtrl', function($scope, $http){
     }
 
 	}
+
+	$scope.getSP500 = function() {
+		console.log("getSP500() !!");
+
+		let _query = {
+			op: "SP500",  // operation
+			startYear: "2015",
+			startMonth: "01",
+			endYear: "2017",
+			endMonth: "09"
+		};
+
+		$http.post("/sp500/history", angular.toJson(_query))
+		.then(function successCallback(response) {
+			console.log("Success !!");
+			if(response.statusText === 'OK') {
+				console.log(angular.toJson(response.data.data));
+			}
+		}, function errorCallback(response) {
+			console.log("Fail !!");
+			console.log("Error is " + angular.toJson(response));
+		});
+	}
+
+	$scope.drawSP500 = function() {
+		console.log("drawSP500() !!");
+
+	}
 });
