@@ -83,7 +83,7 @@ myApp.controller('mainCtrl', function($scope, $http){
 		});
 	}
 
-	$scope.draw = function() {
+	$scope.drawRate = function() {
 		console.log("draw() !!");
 
 		const svg = d3.select("svg"),
@@ -152,10 +152,10 @@ myApp.controller('mainCtrl', function($scope, $http){
         .datum(data)
         //.data(data) 
         .attr("fill", "none")
-        .attr("stroke", "steelblue")
+        .attr("stroke", "red")
         .attr("stroke-linejoin", "round")
         .attr("stroke-linecap", "round")
-        .attr("stroke-width", 1.5)
+        .attr("stroke-width", 2)
         .attr("d", line);
 
     // 建立一個 g element
