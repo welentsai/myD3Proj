@@ -19,7 +19,7 @@ myApp.controller('mainCtrl', function($scope, $http){
 	}
 
 	// 匯率資料整理, 並放入 $scope.rates
-	function formatExchangeRate(dataList) {
+	function formatFedRate(dataList) {
 		for(let i = 0; i < dataList.length; i++) {
 			//console.log(dataList[i].date + " , " + dataList[i].rate);
 			let _d = {
@@ -77,7 +77,7 @@ myApp.controller('mainCtrl', function($scope, $http){
 		$http.post("/fedFunds/rates", angular.toJson(_query))
 		.then(function successCallback(response) {
 			//console.log("getFedFundsRate() OK , response is : " +  angular.toJson(response.data));
-			formatExchangeRate(response.data.data);
+			formatFedRate(response.data.data);
 		}, function errorCallback(response) {
 			console.log("getFedFundsRate() fail");
 		});
