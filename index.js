@@ -9,6 +9,7 @@ const app = express();
 // 自訂 module
 const fedFunds = require('./lib/routes/fedFunds'); // Express Router
 const sp500 = require('./lib/routes/sp500'); // Express Router
+const tw0050 = require('./lib/routes/tw0050'); // Express Router
 
 // web server 
 
@@ -34,6 +35,7 @@ app.get('/', function (req, res) {
 
 app.use('/fedFunds', fedFunds);
 app.use('/sp500', sp500);
+app.use('/tw0050', tw0050);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
