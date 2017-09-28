@@ -91,7 +91,7 @@ function rowFunc(d) {
   return d;
 }
 
-d3.csv("data/sp500.csv", rowFunc, function(error, data) {
+d3.csv("../data/sp500.csv", rowFunc, function(error, data) {
 
   if (error) throw error;
 
