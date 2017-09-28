@@ -81,7 +81,7 @@ function rowFunc(d) {
   return d;
 }
 
-d3.tsv("data/stock_price.tsv", rowFunc, function(error, data) {
+d3.tsv("../data/stock_price.tsv", rowFunc, function(error, data) {
 
   if (error) throw error;
 

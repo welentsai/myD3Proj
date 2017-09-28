@@ -143,7 +143,7 @@ myApp.controller('mainCtrl', function($scope, $http){
 
     //if(data.length === 0) throw error;
 
-    // go through all d.date and d.rate
+    // d3.extent => Returns the MIN and MAX value in the given array
     x.domain(d3.extent(data, function(d) { return parseTime(d.date); }));
     y.domain(d3.extent(data, function(d) { return d.rate; }));
 
