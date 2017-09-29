@@ -1,12 +1,43 @@
 
 var myApp = angular.module('myApp', ['ui.router', 'ui.bootstrap']);
 
-// config myApp
+// config our routes
 myApp.config(function($stateProvider, $urlRouterProvider, $locationProvider, $httpProvider) {
+
+  // default routing
+  $urlRouterProvider.otherwise('/home');
+
+  $stateProvider
+    .state('home', {
+      url: '/home',
+      templateUrl: 'partial_ui_route/partial-home.html',
+      controller: 'homeCtrl'
+    })
+    .state('home.list', { // nested views 
+      url: '/list',
+      templateUrl: 'partial_ui_route/partial-home-list.html',
+      controller: function($scope) {
+        $scope.dogs = ['Bernese', 'Husky', 'Goldendoodle'];
+      }
+    })
+    .state('home.paragraph', { // nested views
+      url: '/paragraph',
+      template: 'I could sure use a drink right now.' // direct html
+    })
+    .state('dataMgr', {
+      url: '/dataMgr',
+      templateUrl: 'partial_ui_route/partial-data-manager.html',
+      controller: 'dataMgrCtrl'
+    })
+    .state('econ', {
+      url: '/econ',
+      templateUrl: 'partial_ui_route/partial-economy.html',
+      controller: 'econCtrl'
+    });
 
 });
 
-// main control here
+// Main controller here
 myApp.controller('mainCtrl', function($scope, $http){
 	console.log("Main control is taking care");
 
@@ -619,4 +650,24 @@ myApp.controller('mainCtrl', function($scope, $http){
       focus.select("text").text(d.date + " " + formatCurrency(d.score));
     }
 	}
+});
+
+
+// Homepage controller here
+myApp.controller('homeCtrl', function($scope, $http, $uibModal, $location){
+  console.log("homeCtrl is taking care");
+});
+
+// Data Manager controller here
+myApp.controller('dataMgrCtrl', function($scope, $http, $uibModal, $location){
+  console.log("dataMgrCtrl is taking care");
+});
+
+// Economy Visualization Controller here
+myApp.controller('econCtrl', function($scope, $http, $uibModal, $location){
+  console.log("econCtrl is taking care");
+
+  $scope.getFedFundsRate = function() {
+    console.log("econCtrl getFedFundsRate()!!");
+  }
 });

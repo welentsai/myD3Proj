@@ -1,0 +1,9 @@
+.focus circle {
+  fill: none;
+  stroke: steelblue;
+}
+
+.overlay {
+  fill: none;
+  pointer-events: all;
+}

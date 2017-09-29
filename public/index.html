@@ -1,7 +1,10 @@
 <!doctype html>
+
 <html lang="zh" ng-app="myApp">
 <head>
 <meta charset="UTF-8">
+<!-- CSS for Microsoft Explore -->
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
 <!-- CSS RWD meta element -->
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>景氣分析系統</title>
@@ -9,83 +12,71 @@
 
 <!-- Bootstrap CSS file -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-<!-- User Defined CSS file -->
+<!-- 客製化 CSS file -->
 <link rel="stylesheet" type="text/css" href="stylesheets/style.css">
 
 <!-- Angular JS file -->
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-cookies.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-animate.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular-animate.js"></script>	
 <script src="https://ajax.googleapis.com/ajax/libs/angular-ui-router/1.0.0-rc.1/angular-ui-router.min.js"></script>
 
 <!-- Angular UI Bootstrap file -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.min.js"></script>
 
+<!-- D3 -->
+<script src="https://d3js.org/d3.v4.min.js"></script>
 <!-- Moment Js file -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
 
-<!-- D3 -->
-<script src="https://d3js.org/d3.v4.min.js"></script>
+</head>
 
 <!-- define angular app -->
-<body>
+<body >
+	<div ng-controller="mainCtrl" class="homepage">
 
-<!-- on page style setting -->
-<style>
+    <!-- 主選單 -->
+		<div>
+			<nav id="navbar-main" class="navbar navbar-inverse">
 
-.focus circle {
-  fill: none;
-  stroke: steelblue;
-}
+				<div class="navbar-header">
+					<a class="navbar-brand" ui-sref="#">AngularUI Router</a>
+				</div>
 
-.overlay {
-  fill: none;
-  pointer-events: all;
-}
+			  <ul class="nav navbar-nav">
 
-</style>
+			  	<li class="active"><a ui-sref="home">Home</a></li>
+			  	<li><a ui-sref="about">About us</a></li>
+			  	<li><a ui-sref="contact">Contact us</a></li>
 
-<!-- home page start here -->
-<div ng-controller="mainCtrl" class="homepage">
+					<li uib-dropdown><a href id="sys-dropdown" uib-dropdown-toggle>系統動作<span class="caret"></span></a>
+						<ul class="dropdown-menu"  uib-dropdown-menu role="menu" aria-labelledby="sys-dropdown">
+							<li role="menuitem"><a ui-sref="dataMgr">資料管理</a></li>
+							<li class="divider"></li>
+							<li role="menuitem"><a href="#">About US</a></li>
+						</ul>
+					</li>
 
-	<div class="container-fluid">
-		<h2>D3 Hello World</h2>
+					<li uib-dropdown><a href id="shpr-dropdown" uib-dropdown-toggle>景氣分析<span class="caret"></span></a>
+						<ul class="dropdown-menu"  uib-dropdown-menu role="menu" aria-labelledby="shpr-dropdown">
+							<li role="menuitem"><a ui-sref="econ">經濟趨勢分析</a></li>
+						</ul>
+					</li>
+
+				</ul>
+			</nav>
+		</div>
+
+		<br/>
+
+		<div class="container"> 
+			<!-- THIS IS WHERE WE WILL INJECT OUR CONTENT  -->
+			<div ui-view></div>
+		</div>	
+
 	</div>
 
-	<div class="container-fluid">
-		<div class="form-group row">
-			<div class="col-sm-10">
-				<button type="submit" class="btn btn-primary" ng-click="getFedFundsRate()">讀取Fed利率資料</button>
-				<button type="submit" class="btn btn-danger" ng-click="drawRate()">繪製圖表</button>
-			</div>
-		</div>	
-		<div class="form-group row">
-			<div class="col-sm-10">
-				<!-- &amp; => excape character for &  -->
-				<button type="submit" class="btn btn-primary" ng-click="getSP500()">讀取S&amp;P500資料</button>
-				<button type="submit" class="btn btn-danger" ng-click="drawSP500()">繪製圖表</button>
-			</div>
-		</div>	
-		<div class="form-group row">
-			<div class="col-sm-10">
-				<button type="submit" class="btn btn-primary" ng-click="getTW0050()">讀取0050資料</button>
-				<button type="submit" class="btn btn-danger" ng-click="drawTW0050()">繪製圖表</button>
-			</div>
-		</div>	
-		<div class="form-group row">
-			<div class="col-sm-10">
-				<button type="submit" class="btn btn-primary" ng-click="getTWIdxSc()">讀取台灣景氣對策信號(分數)資料</button>
-				<button type="submit" class="btn btn-danger" ng-click="drawTWIdxSc()">繪製圖表</button>
-			</div>
-		</div>	
-	</div>
-
-	<svg width="960" height="500"></svg>
-</div>
-
-<!-- 自定義 Script 放在最後 -->
-<script src="script.js"></script>
-
+	<!-- 自定義 Script 放在最後 -->
+  <script src="script.js"></script>
 </body>
-</head>
 </html>
