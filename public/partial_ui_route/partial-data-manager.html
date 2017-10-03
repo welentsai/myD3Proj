@@ -1,0 +1,60 @@
+<div class="container-fluid">
+	<!-- Web Form for creating new shipper -->
+	<form>
+		<div class="form-group row">
+
+			<label for="startDate" class="col-sm-1 col-form-label">開始日期</label>
+			<div class="col-sm-3">
+				<div class="input-group">
+					<input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="startDate" is-open="popupDP_StartDate.opened" ng-required="true" datepicker-options="dateOptions" close-text="Close">
+					<span class="input-group-btn">
+						<button type="button" class="btn btn-primary" ng-click="opendp_StartDate()">
+							<span class="glyphicon glyphicon-calendar">
+						</button>
+					</span>	
+				</div>
+			</div>
+
+			<label for="endDate" class="col-sm-1 col-form-label">結束日期</label>
+			<div class="col-sm-3">
+				<div class="input-group">
+					<input type="text" class="form-control" uib-datepicker-popup="{{format}}" ng-model="endDate" is-open="popupDP_EndDate.opened" ng-required="true" datepicker-options="dateOptions" close-text="Close">
+					<span class="input-group-btn">
+						<button type="button" class="btn btn-primary" ng-click="opendp_EndDate()">
+							<span class="glyphicon glyphicon-calendar">
+						</button>
+					</span>	
+				</div>
+			</div>
+
+		</div>
+
+		<div class="form-group row">
+		  <label class="col-sm-3 col-form-label">
+		    <input type="checkbox" ng-model="fedFundRate">
+		    Fed利率
+		  </label>
+		</div>
+		<div class="form-group row">
+			<label class="col-sm-3 col-form-label">
+			  <input type="checkbox" ng-model="sp500">
+			  S&amp;P500
+			</label>
+		</div>
+		<div class="form-group row">
+			<label class="col-sm-3 col-form-label">
+			  <input type="checkbox" ng-model="tw50">
+			  0050
+			</label>
+		</div>
+
+		<div class="form-group row">
+  		<div class="col-sm-offset-1 col-sm-10">
+				<button type="submit" class="btn btn-primary" ng-click="draw()">繪製</button>
+    		<button type="submit" class="btn btn-danger" ng-click="cancel()">取消</button>
+  		</div>
+  	</div>
+	</form>
+</div>
+
+<svg width="960" height="500"></svg>

@@ -658,11 +658,6 @@ myApp.controller('homeCtrl', function($scope, $http, $uibModal, $location){
   console.log("homeCtrl is taking care");
 });
 
-// Data Manager controller here
-myApp.controller('dataMgrCtrl', function($scope, $http, $uibModal, $location){
-  console.log("dataMgrCtrl is taking care");
-});
-
 // Economy Visualization Controller here
 myApp.controller('econCtrl', function($scope, $http, $uibModal, $location){
   console.log("econCtrl is taking care");
