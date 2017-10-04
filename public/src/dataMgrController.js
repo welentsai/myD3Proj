@@ -2,13 +2,15 @@
 myApp.controller('dataMgrCtrl', function($scope, $q, $http, $uibModal, $location){
   console.log("dataMgrCtrl is taking care");
 
-  // 初始化
+  // checkBox 初始化
   $scope.fedFundRate = false;
+  $scope.exRate = false;
   $scope.sp500 = false;
   $scope.tw50 = false;
 
   // 初始化
   $scope.rates = []; // fed fund rate list
+  $scope.exRates = []; // 台幣匯率
   $scope.sp500es = [];
   $scope.tw0050es = [];
   $scope.twIdxSces = []; // 台灣景氣對策信號(分數) List
@@ -52,14 +54,23 @@ myApp.controller('dataMgrCtrl', function($scope, $q, $http, $uibModal, $location
       getFedFundsRate(stDate.year(), stDate.month()+1, edDate.year(), edDate.month()+1)
       .then(function successCallback(response) {
         console.log(response);
-        drawFedRate();
+        drawFedRate($scope.rates);
       }, function errorCallback(error) {
         console.log(error);
       });
-
     }
 
-
+    if($scope.exRate) {
+      let stDate = moment($scope.startDate, "YYYY/MM/DD");
+      let edDate = moment($scope.endDate, "YYYY/MM/DD");
+      getExchangeRate(stDate.year(), stDate.month()+1, edDate.year(), edDate.month()+1)
+      .then(function successCallback(response) {
+        console.log(response);
+        drawFedRate($scope.exRates);
+      }, function errorCallback(error) {
+        console.log(error);
+      });
+    }
   }
 
   $scope.cancel = function() {
@@ -67,7 +78,7 @@ myApp.controller('dataMgrCtrl', function($scope, $q, $http, $uibModal, $location
     $scope.endDate = null;
   }
 
-  function drawFedRate() {
+  function drawFedRate(rateList) {
 
     let stDate = moment($scope.startDate, "YYYY/MM/DD");
     let edDate = moment($scope.endDate, "YYYY/MM/DD");
@@ -103,7 +114,7 @@ myApp.controller('dataMgrCtrl', function($scope, $q, $http, $uibModal, $location
 
     // d3.extent => Returns the MIN and MAX value in the given array
     x.domain([parseTime(stDate.format('YYYY-MM-DD')), parseTime(edDate.format('YYYY-MM-DD'))]);
-    y.domain(d3.extent($scope.rates, function(d) { return d.rate; }));
+    y.domain(d3.extent(rateList, function(d) { return d.rate; }));
 
     // 繪出 x-軸
     g.append("g")
@@ -123,7 +134,7 @@ myApp.controller('dataMgrCtrl', function($scope, $q, $http, $uibModal, $location
 
     // 繪出 匯率線
     g.append("path")
-        .datum($scope.rates)
+        .datum(rateList)
         //.data(data) 
         .attr("fill", "none")
         .attr("stroke", "red")
@@ -135,6 +146,32 @@ myApp.controller('dataMgrCtrl', function($scope, $q, $http, $uibModal, $location
 
   function getDate(d) {
     return moment(d, "YYYY-MM-DD").format('YYYY-MM-DD');
+  }
+
+  function getExchangeRate(stYr, stM, endYr, endM) {
+    // 利用 $q 的 promise機制包裝 getFedFundsRate()
+    let deferred = $q.defer();
+
+    let _query = {
+      op: "FedRate",  // operation
+      startYear: stYr,
+      startMonth: stM,
+      endYear: endYr,
+      endMonth: endM
+    };
+
+    $http.post("/exchangeRate/rates", angular.toJson(_query))
+    .then(function successCallback(response) {
+      //console.log("getFedFundsRate() OK , response is : " +  angular.toJson(response.data));
+      formatExRate(response.data.data);
+      deferred.resolve("Success");
+    }, function errorCallback(response) {
+      console.log("getFedFundsRate() fail");
+      deferred.reject(response);
+    });
+
+    // promise is returned
+    return deferred.promise;
   }
 
   function getFedFundsRate(stYr, stM, endYr, endM) {
@@ -166,7 +203,7 @@ myApp.controller('dataMgrCtrl', function($scope, $q, $http, $uibModal, $location
     return deferred.promise;
   }
 
-  // 匯率資料整理, 並放入 $scope.rates
+  // FED 利率 資料整理, 並放入 $scope.rates
   function formatFedRate(dataList) {
     for(let i = 0; i < dataList.length; i++) {
       //console.log(dataList[i].date + " , " + dataList[i].rate);
@@ -180,5 +217,21 @@ myApp.controller('dataMgrCtrl', function($scope, $q, $http, $uibModal, $location
     console.log($scope.rates.length);
     console.log($scope.rates);
   }
+
+  // 整理台幣匯率
+  function formatExRate(dataList) {
+    for(let i = 0; i < dataList.length; i++) {
+      //console.log(dataList[i]);
+      let _d = {
+        date: getDate(dataList[i].date),
+        rate: (((+dataList[i].sightBuy) + (+dataList[i].sightSell))/2).toPrecision(5)  // convert String to Number
+      }
+      //console.log(_d);
+      $scope.exRates.push(_d);
+    }
+    console.log($scope.exRates.length);
+    console.log($scope.exRates);
+  }
+
 
 });

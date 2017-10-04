@@ -1,0 +1,44 @@
+<div class="container-fluid">
+  <form id="rateForm">
+    <div class="form-group row">
+      <label for="custID" class="col-sm-1">查詢匯率</label>
+      <div class="col-sm-1">
+        <span class="input-group-btn">
+          <button type="button" class="btn btn-primary" ng-click="lookupCustID()">
+            <span class="glyphicon glyphicon-search"></span>
+          </button>
+        </span>
+      </div>
+    </div>
+    <div class="form-group row">
+      <label for="custRegAddr" class="col-sm-1 col-form-label">資料庫最後日期</label>
+      <div class="col-sm-2">
+        <input type="text" class="form-control" ng-model="custRegAddr" placeholder="最後更新日期"> 
+      </div>
+    </div>
+    <div class="form-group row">
+      <div class="col-sm-offset-1 col-sm-10">
+        <button type="submit" class="btn btn-primary" ng-click="addCust()">存檔</button>
+        <button type="submit" class="btn btn-danger" ng-click="cleanfileds()">清空欄位</button>
+      </div>
+    </div>
+  </form>
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <tr>
+          <th class="col-sm-3">幣別</th>
+          <th class="col-sm-3">現金匯率</th>
+          <th class="col-sm-3">即期匯率</th>
+        </tr>  
+      </thead>
+      <tbody>
+        <tr ng-repeat="item in items">
+          <td> {{item.id}} </td>
+          <td> {{item.name}} </td>
+          <td> {{item.sellPr}} </td>
+        </tr>  
+      </tbody>
+    </table>
+  </div>
+</div>

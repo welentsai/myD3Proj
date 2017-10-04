@@ -6,11 +6,12 @@ const logger = require('morgan');
 const bodyParser = require('body-parser');
 const app = express();
 
-// 自訂 module
+// 自訂 Router module
 const fedFunds = require('./lib/routes/fedFunds'); // Express Router
 const sp500 = require('./lib/routes/sp500'); // Express Router
 const tw0050 = require('./lib/routes/tw0050'); // Express Router
 const twIdxSc = require('./lib/routes/twIdxSc'); // Express Router
+const exRates = require('./lib/routes/exchange_rate'); // Express Router
 
 // web server 
 
@@ -38,6 +39,7 @@ app.use('/fedFunds', fedFunds);
 app.use('/sp500', sp500);
 app.use('/tw0050', tw0050);
 app.use('/twIdxScore', twIdxSc);
+app.use('/exchangeRate', exRates);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
