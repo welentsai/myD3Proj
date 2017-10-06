@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 const app = express();
 
 // 自訂 Router module
+const dataMgr = require('./lib/routes/dataMgr'); // Express Router
 const fedFunds = require('./lib/routes/fedFunds'); // Express Router
 const sp500 = require('./lib/routes/sp500'); // Express Router
 const tw0050 = require('./lib/routes/tw0050'); // Express Router
@@ -35,6 +36,7 @@ app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname+'/public/index.html'));
 });
 
+app.use('/dataMgr', dataMgr);
 app.use('/fedFunds', fedFunds);
 app.use('/sp500', sp500);
 app.use('/tw0050', tw0050);

@@ -47,30 +47,52 @@ myApp.controller('dataMgrCtrl', function($scope, $q, $http, $uibModal, $location
     if(typeof $scope.endDate == 'undefined' || $scope.endDate == null) return;
 
     console.log("not empty check : pass !!");
+    let _symblist = [];
 
-    if($scope.fedFundRate) {
-      let stDate = moment($scope.startDate, "YYYY/MM/DD");
-      let edDate = moment($scope.endDate, "YYYY/MM/DD");
-      getFedFundsRate(stDate.year(), stDate.month()+1, edDate.year(), edDate.month()+1)
-      .then(function successCallback(response) {
-        console.log(response);
-        drawFedRate($scope.rates);
-      }, function errorCallback(error) {
-        console.log(error);
-      });
+    if($scope.fedFundRate) { // FED Fund Rate chceck box triggered
+      _symblist.push("FedRate");
     }
 
-    if($scope.exRate) {
-      let stDate = moment($scope.startDate, "YYYY/MM/DD");
-      let edDate = moment($scope.endDate, "YYYY/MM/DD");
-      getExchangeRate(stDate.year(), stDate.month()+1, edDate.year(), edDate.month()+1)
-      .then(function successCallback(response) {
-        console.log(response);
-        drawFedRate($scope.exRates);
-      }, function errorCallback(error) {
-        console.log(error);
-      });
+    if($scope.exRate) { // TWD-USD Exchange Rate Check Box Triggered
+     _symblist.push("exRate"); 
     }
+
+    if($scope.sp500) { // S&P 500 Check Box Triggered
+      _symblist.push("SP500"); 
+    }
+
+    if($scope.tw50) { // TWSE 0050 Check Box Triggered
+      _symblist.push("TW50"); 
+    }
+
+    let stDate = moment($scope.startDate, "YYYY/MM/DD");
+    let edDate = moment($scope.endDate, "YYYY/MM/DD");
+
+    getData(_symblist, stDate.year(), stDate.month()+1, edDate.year(), edDate.month()+1);
+
+    // if($scope.fedFundRate) {
+    //   let stDate = moment($scope.startDate, "YYYY/MM/DD");
+    //   let edDate = moment($scope.endDate, "YYYY/MM/DD");
+    //   getFedFundsRate(stDate.year(), stDate.month()+1, edDate.year(), edDate.month()+1)
+    //   .then(function successCallback(response) {
+    //     console.log(response);
+    //     drawFedRate($scope.rates);
+    //   }, function errorCallback(error) {
+    //     console.log(error);
+    //   });
+    // }
+
+    // if($scope.exRate) {
+    //   let stDate = moment($scope.startDate, "YYYY/MM/DD");
+    //   let edDate = moment($scope.endDate, "YYYY/MM/DD");
+    //   getExchangeRate(stDate.year(), stDate.month()+1, edDate.year(), edDate.month()+1)
+    //   .then(function successCallback(response) {
+    //     console.log(response);
+    //     drawFedRate($scope.exRates);
+    //   }, function errorCallback(error) {
+    //     console.log(error);
+    //   });
+    // }
   }
 
   $scope.cancel = function() {
@@ -146,6 +168,29 @@ myApp.controller('dataMgrCtrl', function($scope, $q, $http, $uibModal, $location
 
   function getDate(d) {
     return moment(d, "YYYY-MM-DD").format('YYYY-MM-DD');
+  }
+
+  function getData(symblist, stYr, stM, endYr, endM) {
+    // let deferred = $q.defer();
+    let _query = {
+      op: "GetData",  // operation
+      symbl: symblist,
+      startYear: stYr,
+      startMonth: stM,
+      endYear: endYr,
+      endMonth: endM
+    };
+
+    console.log(_query);
+    $http.post("/dataMgr", angular.toJson(_query))
+    .then(function successCallback(response) {
+      console.log("getData() OK , response is : " +  angular.toJson(response.data));
+      //formatExRate(response.data.data);
+      //deferred.resolve("Success");
+    }, function errorCallback(response) {
+      console.log("getData() fail");
+      //deferred.reject(response);
+    });
   }
 
   function getExchangeRate(stYr, stM, endYr, endM) {
