@@ -67,14 +67,14 @@ myApp.controller('dataMgrCtrl', function($scope, $q, $http, $uibModal, $location
     let stDate = moment($scope.startDate, "YYYY/MM/DD");
     let edDate = moment($scope.endDate, "YYYY/MM/DD");
 
-    getData(_symblist, stDate.year(), stDate.month()+1, edDate.year(), edDate.month()+1)
-    .then(function successCb(response) {
-      console.log("Success !!");
-      console.log(response);
-    }, function errorCb(error) {
-      console.log("Failure !!");
-      console.log(response);
-    });
+    // getData(_symblist, stDate.year(), stDate.month()+1, edDate.year(), edDate.month()+1)
+    // .then(function successCb(response) {
+    //   console.log("Success !!");
+    //   console.log(response);
+    // }, function errorCb(error) {
+    //   console.log("Failure !!");
+    //   console.log(response);
+    // });
   }
 
   $scope.cancel = function() {
